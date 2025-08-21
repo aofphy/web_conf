@@ -1,0 +1,53 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Conference Backend API
+  - job_name: 'conference-backend'
+    static_configs:
+      - targets: ['backend:5000']
+    metrics_path: '/metrics/prometheus'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+  # Node Exporter (if installed)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # PostgreSQL Exporter (if installed)
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+  # Redis Exporter (if installed)
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  # Nginx Exporter (if installed)
+  - job_name: 'nginx-exporter'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+
+  # Docker containers health check
+  - job_name: 'docker-health'
+    static_configs:
+      - targets: ['frontend:80', 'backend:5000']
+    metrics_path: '/health'
+    scrape_interval: 60s
